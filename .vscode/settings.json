@@ -1,0 +1,9 @@
+{
+    "terminal.integrated.fontSize": 14,
+    "python.analysis.typeCheckingMode": "strict",
+    "python.analysis.extraPaths": [],
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportMissingImports": "none",
+        "reportMissingTypeStubs": "none"
+    }
+}
