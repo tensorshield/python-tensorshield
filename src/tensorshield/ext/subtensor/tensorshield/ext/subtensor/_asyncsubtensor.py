@@ -122,18 +122,21 @@ class AsyncSubtensor:
         reuse_block: bool = False,
     ) -> Any | None:
         """
-        Queries the runtime API of the Bittensor blockchain, providing a way to interact with the underlying runtime and
-            retrieve data encoded in Scale Bytes format. This function is essential for advanced users who need to
-            interact with specific runtime methods and decode complex data types.
+        Queries the runtime API of the Bittensor blockchain, providing a way to
+        interact with the underlying runtime and retrieve data encoded in Scale
+        Bytes format. This function is essential for advanced users who need to
+        interact with specific runtime methods and decode complex data types.
 
         Args:
             runtime_api: The name of the runtime API to query.
             method: The specific method within the runtime API to call.
             params: The parameters to pass to the method call.
-            block: the block number for this query. Do not specify if using block_hash or reuse_block
-            block_hash: The hash of the blockchain block number at which to perform the query. Do not specify if
-                using block or reuse_block
-            reuse_block: Whether to reuse the last-used block hash. Do not set if using block_hash or block
+            block: the block number for this query. Do not specify if using
+                block_hash or reuse_block
+            block_hash: The hash of the blockchain block number at which to
+                perform the query. Do not specify if using `block` or `reuse_block`.
+            reuse_block: Whether to reuse the last-used block hash. Do not
+                set if using `block_hash` or `block`.
 
         Returns:
             The decoded result from the runtime API call, or `None` if the call fails.
