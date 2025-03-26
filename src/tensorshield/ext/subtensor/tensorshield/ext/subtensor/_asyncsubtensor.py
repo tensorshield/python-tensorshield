@@ -3,6 +3,7 @@ import os
 import ssl
 import sys
 from typing import Any
+from types import TracebackType
 
 import asyncstdlib
 from async_substrate_interface import AsyncSubstrateInterface
@@ -155,3 +156,20 @@ class AsyncSubtensor:
     @asyncstdlib.lru_cache(maxsize=128)
     async def _get_block_hash(self, block_id: int) -> str:
         return await self.substrate.get_block_hash(block_id) # type: ignore
+
+    async def __aenter__(self):
+        try:
+            await self.substrate.initialize()
+            return self
+        except TimeoutError:
+            raise ConnectionError
+        except (ConnectionRefusedError, ssl.SSLError):
+            raise ConnectionError
+
+    async def __aexit__(
+        self,
+        cls: type[BaseException],
+        exc: BaseException,
+        tb: TracebackType
+    ):
+        await self.substrate.close()
