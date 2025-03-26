@@ -15,7 +15,8 @@ from tensorshield.ext.wallet import ColdkeyRef
 from tensorshield.ext.wallet import Hotkey
 
 from ._const import FINNEY_ENTRYPOINT
-from ._const import FINNEY_TEST_ENTRYPOINT
+from ._const import CHAIN_ENDPOINT_NETWORKS
+from ._const import NETWORK_CHAIN_ENDPOINTS
 
 
 class Environment(EnvironmentBaseModel):
@@ -37,7 +38,7 @@ class Environment(EnvironmentBaseModel):
 
     chain_endpoint: HTTPResourceLocator | WebSocketResourceLocator | None = pydantic.Field(
         default=None,
-        alias='BT_CHAIN_ENDPOINT'
+        alias='BT_SUBTENSOR_CHAIN_ENDPOINT'
     )
 
     enabled_hotkeys: ColonSeparatedList[Hotkey] = pydantic.Field(
@@ -102,13 +103,11 @@ class Environment(EnvironmentBaseModel):
         chain_endpoint = values.get('chain_endpoint')
         network = values.get('network')
         match network:
-            case 'finney': chain_endpoint = FINNEY_ENTRYPOINT
-            case 'test': chain_endpoint = FINNEY_TEST_ENTRYPOINT
             case None:
                 chain_endpoint = chain_endpoint or FINNEY_ENTRYPOINT
-                if chain_endpoint == FINNEY_ENTRYPOINT:
-                    network = 'finney'
+                network = CHAIN_ENDPOINT_NETWORKS.get(chain_endpoint)
             case _:
+                chain_endpoint = chain_endpoint or NETWORK_CHAIN_ENDPOINTS.get(network)
                 if not chain_endpoint:
                     raise ValueError(
                         "Provide either BT_SUBNET with a known named network "
