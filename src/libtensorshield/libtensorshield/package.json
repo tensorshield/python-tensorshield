@@ -15,7 +15,8 @@
         "pytest",
         "pytest_asyncio",
         "coverage",
-        "twine"
+        "twine",
+        "watchdog"
       ]
     },
     "classifiers": [
