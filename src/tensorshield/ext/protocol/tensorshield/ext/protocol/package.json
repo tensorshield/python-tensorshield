@@ -1,5 +1,5 @@
 {
-    "name": "tensorshield.ext.protcol",
+    "name": "tensorshield.ext.protocol",
     "description": "Bittensor transport protocol (Synapse)",
     "author": "Immortal Izzy",
     "author_email": "immortal.izzy@tensorshield.ai",
