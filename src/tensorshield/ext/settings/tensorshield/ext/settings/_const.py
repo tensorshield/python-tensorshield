@@ -1,5 +1,13 @@
 import os
 
+
+__all__: list[str] = [
+    'DEFAULT_NETWORK'
+]
+
+
+DEFAULT_NETWORK: str = 'finney'
+
 NETWORKS = ["finney", "test", "archive", "local", "subvortex", "rao", "latent-lite"]
 
 FINNEY_ENTRYPOINT: str = "wss://entrypoint-finney.opentensor.ai:443"
