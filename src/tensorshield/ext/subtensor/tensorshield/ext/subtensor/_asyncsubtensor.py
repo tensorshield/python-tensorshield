@@ -2,12 +2,14 @@ import logging
 import os
 import ssl
 import sys
+from typing import cast
 from typing import Any
 from types import TracebackType
 
 import asyncstdlib
 from async_substrate_interface import AsyncSubstrateInterface
 
+from .models import NeuronInfo
 
 os.environ.setdefault('BT_SS58_FORMAT', '42')
 if not os.environ['BT_SS58_FORMAT'].isdigit():
@@ -68,6 +70,22 @@ class AsyncSubtensor:
             return await self.get_block_hash(block)
         return None
 
+    async def get_current_block(self) -> int:
+        """
+        Returns the current block number on the Bittensor blockchain.
+        This function provides the latest block number, indicating the
+        most recent state of the blockchain.
+
+        Returns:
+            int: The current chain block number.
+
+        Knowing the current block number is essential for querying real-time
+            data and performing time-sensitive operations on the blockchain.
+            It serves as a reference point for network activities and data
+            synchronization.
+        """
+        return await self.substrate.get_block_number(None)
+
     async def initialize(self):
         self.logger.info(
             f"[magenta]Connecting to Substrate:[/magenta] [blue]{self}[/blue][magenta]...[/magenta]"
@@ -89,6 +107,44 @@ class AsyncSubtensor:
                 repr(error)
             )
             raise ConnectionError
+
+    async def neurons(
+        self,
+        netuid: int,
+        block: int | None = None,
+        block_hash: str | None = None,
+        reuse_block: bool = False,
+    ) -> list[NeuronInfo]:
+        """
+        Retrieves a list of all neurons within a specified subnet of the Bittensor network.
+        This function provides a snapshot of the subnet's neuron population, including each neuron's attributes and
+            network interactions.
+
+        Arguments:
+            netuid (int): The unique identifier of the subnet.
+            block (Optional[int]): The blockchain block number for the query.
+            block_hash (str): The hash of the blockchain block number for the query.
+            reuse_block (bool): Whether to reuse the last-used blockchain block hash.
+
+        Returns:
+            A list of NeuronInfo objects detailing each neuron's characteristics in the subnet.
+
+        Understanding the distribution and status of neurons within a subnet is key to comprehending the network's
+            decentralized structure and the dynamics of its consensus and governance processes.
+        """
+        result = await self.query_runtime_api(
+            runtime_api="NeuronInfoRuntimeApi",
+            method="get_neurons",
+            params=[netuid],
+            block=block,
+            block_hash=block_hash,
+            reuse_block=reuse_block,
+        )
+
+        if not result:
+            return cast(list[NeuronInfo], [])
+
+        return NeuronInfo.list_from_dicts(result)
 
     async def get_block_hash(self, block: int | None = None) -> str:
         """

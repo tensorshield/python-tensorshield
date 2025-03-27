@@ -8,6 +8,8 @@
     "install_requires": [
       "pydantic>2",
       "asyncstdlib>=3.13.1",
+      "libcanonical>=0.0.37",
+      "libtensorshield>=0.0.2",
       "async_substrate_interface>=0.1.2"
     ],
     "extras_require": {
