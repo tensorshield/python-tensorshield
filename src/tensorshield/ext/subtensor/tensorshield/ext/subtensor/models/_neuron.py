@@ -5,6 +5,7 @@ from typing import TypeVar
 import pydantic
 from libcanonical.bases import StateLogger
 
+from ._neuroninfo import NeuronInfo
 
 S = TypeVar('S', bound='Neuron')
 
@@ -33,6 +34,28 @@ class Neuron(pydantic.BaseModel, StateLogger):
     vtrust: float = pydantic.Field(
         default=0.0
     )
+
+    @classmethod
+    def model_validate_neuroninfo(cls, neuroninfo: NeuronInfo):
+        return cls.model_validate({
+            'hotkey': neuroninfo.hotkey,
+            'coldkey': neuroninfo.coldkey,
+            'uid': neuroninfo.uid,
+            'active': neuroninfo.active,
+            'stake': float(neuroninfo.stake),
+            'total_stake': float(neuroninfo.total_stake),
+            'rank': neuroninfo.rank,
+            'emission': neuroninfo.emission,
+            'inventive': neuroninfo.incentive,
+            'concensur': neuroninfo.consensus,
+            'trust': neuroninfo.trust,
+            'vtrust': neuroninfo.validator_trust,
+            'dividends': neuroninfo.dividends,
+            'last_update': neuroninfo.last_update,
+            'validator_permit': neuroninfo.validator_permit,
+            'host': None if not neuroninfo.axon_info else neuroninfo.axon_info.ip,
+            'port': None if not neuroninfo.axon_info else neuroninfo.axon_info.port
+        })
 
     def is_miner(self) -> bool:
         raise NotImplementedError

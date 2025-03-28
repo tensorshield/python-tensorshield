@@ -86,6 +86,80 @@ class AsyncSubtensor:
         """
         return await self.substrate.get_block_number(None)
 
+    async def get_hyperparameter(
+        self,
+        param_name: str,
+        netuid: int,
+        block: int | None = None,
+        block_hash: str | None = None,
+        reuse_block: bool = False,
+        subnet_exists: bool = False
+    ) -> Any | None:
+        """
+        Retrieves a specified hyperparameter for a specific subnet.
+
+        Arguments:
+            param_name (str): The name of the hyperparameter to retrieve.
+            netuid (int): The unique identifier of the subnet.
+            block: the block number at which to retrieve the hyperparameter. Do not specify if using block_hash or
+                reuse_block
+            block_hash (Optional[str]): The hash of blockchain block number for the query. Do not specify if using
+                block or reuse_block
+            reuse_block (bool): Whether to reuse the last-used block hash. Do not set if using block_hash or block.
+
+        Returns:
+            The value of the specified hyperparameter if the subnet exists, or None
+        """
+        block_hash = await self.determine_block_hash(block, block_hash, reuse_block)
+        if not subnet_exists and not await self.subnet_exists(
+            netuid, block_hash=block_hash, reuse_block=reuse_block
+        ):
+            raise ValueError(f"Subnet {netuid} does not exist.")
+
+        result = await self.substrate.query( # type: ignore
+            module="SubtensorModule",
+            storage_function=param_name,
+            params=[netuid],
+            block_hash=block_hash,
+            reuse_block_hash=reuse_block,
+        )
+
+        return getattr(result, "value", result)
+
+    async def immunity_period(
+        self,
+        netuid: int,
+        block: int | None = None,
+        block_hash: str | None = None,
+        reuse_block: bool = False,
+    ) -> int | None:
+        """
+        Retrieves the 'ImmunityPeriod' hyperparameter for a specific subnet. This parameter
+        defines the duration during which new neurons are protected from certain network
+        penalties or restrictions.
+
+        Args:
+            netuid (int): The unique identifier of the subnet.
+            block (Optional[int]): The blockchain block number for the query.
+            block_hash (Optional[str]): The blockchain block_hash representation of the block id.
+            reuse_block (bool): Whether to reuse the last-used blockchain block hash.
+
+        Returns:
+            Optional[int]: The value of the 'ImmunityPeriod' hyperparameter if the subnet exists, ``None`` otherwise.
+
+        The 'ImmunityPeriod' is a critical aspect of the network's governance system, ensuring that new participants
+            have a grace period to establish themselves and contribute to the network without facing immediate
+            punitive actions.
+        """
+        block_hash = await self.determine_block_hash(block, block_hash, reuse_block)
+        call = await self.get_hyperparameter(
+            param_name="ImmunityPeriod",
+            netuid=netuid,
+            block_hash=block_hash,
+            reuse_block=reuse_block,
+        )
+        return None if call is None else int(call)
+
     async def initialize(self):
         self.logger.info(
             f"[magenta]Connecting to Substrate:[/magenta] [blue]{self}[/blue][magenta]...[/magenta]"
@@ -208,6 +282,38 @@ class AsyncSubtensor:
             runtime_api, method, params, block_hash
         )
         return result.value # type: ignore
+
+    async def subnet_exists(
+        self,
+        netuid: int,
+        block: int | None = None,
+        block_hash: str | None = None,
+        reuse_block: bool = False,
+    ) -> bool:
+        """
+        Checks if a subnet with the specified unique identifier (netuid) exists within the Bittensor network.
+
+        Arguments:
+            netuid (int): The unique identifier of the subnet.
+            block (Optional[int]): The blockchain block number for the query.
+            block_hash (Optional[str]): The hash of the blockchain block number at which to check the subnet existence.
+            reuse_block (bool): Whether to reuse the last-used block hash.
+
+        Returns:
+            `True` if the subnet exists, `False` otherwise.
+
+        This function is critical for verifying the presence of specific subnets in the network,
+        enabling a deeper understanding of the network's structure and composition.
+        """
+        block_hash = await self.determine_block_hash(block, block_hash, reuse_block)
+        result = await self.substrate.query( # type: ignore
+            module="SubtensorModule",
+            storage_function="NetworksAdded",
+            params=[netuid],
+            block_hash=block_hash,
+            reuse_block_hash=reuse_block,
+        )
+        return getattr(result, "value", False)
 
     @asyncstdlib.lru_cache(maxsize=128)
     async def _get_block_hash(self, block_id: int) -> str:

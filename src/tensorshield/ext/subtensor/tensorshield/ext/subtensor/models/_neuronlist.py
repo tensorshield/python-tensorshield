@@ -1,17 +1,18 @@
+import logging
 from typing import Any
-from typing import TYPE_CHECKING
+from typing import ClassVar
 
 import pydantic
 
 from ._neuron import Neuron
-if TYPE_CHECKING:
-    from tensorshield.ext.subtensor import AsyncSubtensor
+from ._neuroninfo import NeuronInfo
 
 
 NeuronType = Neuron
 
 
 class NeuronList(pydantic.BaseModel):
+    logger: ClassVar[logging.Logger] = logging.getLogger(__name__)
     block: int = pydantic.Field(
         default=0
     )
@@ -34,19 +35,18 @@ class NeuronList(pydantic.BaseModel):
     def model_post_init(self, _: Any):
         self._index = {str(x.hotkey): x for x in self.items}
 
-    async def update(
+    def update(
         self,
-        subtensor: 'AsyncSubtensor',
         netuid: int,
-        block: int | None = None
+        block: int,
+        neurons: list[NeuronInfo]
     ):
-        self.block = block or await subtensor.get_current_block()
         adapter: pydantic.TypeAdapter[NeuronType] = pydantic.TypeAdapter(NeuronType)
         current: list[Neuron] = []
         joined: set[NeuronType] = set()
         changed: set[tuple[NeuronType, NeuronType, tuple[str, ...]]] = set()
 
-        for neuroninfo in await subtensor.neurons(netuid=netuid, block=block):
+        for neuroninfo in neurons:
             current.append(
                 adapter.validate_python({
                     'hotkey': neuroninfo.hotkey,
@@ -58,7 +58,7 @@ class NeuronList(pydantic.BaseModel):
                     'rank': neuroninfo.rank,
                     'emission': neuroninfo.emission,
                     'inventive': neuroninfo.incentive,
-                    'concensur': neuroninfo.consensus,
+                    'consensus': neuroninfo.consensus,
                     'trust': neuroninfo.trust,
                     'vtrust': neuroninfo.validator_trust,
                     'dividends': neuroninfo.dividends,
@@ -75,8 +75,14 @@ class NeuronList(pydantic.BaseModel):
             if new in joined:
                 continue
             diff = self._index[new.hotkey].update(new)
-            if diff:
+            if diff[-1]:
                 changed.add(diff)
+                self.logger.debug(
+                    "Neuron %s/%s changed fields: %s",
+                    netuid,
+                    new.uid,
+                    str.join(', ', diff[-1])
+                )
             index[new.hotkey] = self._index[new.hotkey]
 
         # All neurons that are not in the new index are dropped.
@@ -84,6 +90,11 @@ class NeuronList(pydantic.BaseModel):
             n for n in self._index.values() # type: ignore
             if n.hotkey not in index
         }
+
+        # Prevent marking neurons as joined when instantiating an empty
+        # NeuronList.
+        if not self.items:
+            joined = set()
 
         self._index = index
         self.items = list(sorted(self._index.values(), key=lambda x: x.rank))
