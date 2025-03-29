@@ -7,6 +7,7 @@ import socket
 from typing import Any
 from typing import Awaitable
 from typing import TypeVar
+from typing import TYPE_CHECKING
 
 import pydantic
 from libcanonical.bases import PollingExternalState
@@ -19,6 +20,9 @@ from .models import NeuronInfo
 from .models import NeuronList
 from ._asyncsubtensor import AsyncSubtensor
 from ._metagraphobserver import MetagraphObserver
+if TYPE_CHECKING:
+    from ._metagraphuplink import MetagraphUplink
+    from ._metagraphuplink import ObserverTypeOrFactory
 
 
 DEFAULT_NETWORK: str = 'finney'
@@ -44,6 +48,7 @@ class MetagraphThread(PollingExternalState):
     logger_name = 'tensorshield'
     neurons: NeuronList
     observers: list[MetagraphObserver]
+    observer_factories: list['ObserverTypeOrFactory']
     replay_max_blocks: int = 14400
     replay_batch_size: int = 128
     subtensor: AsyncSubtensor | None = None
@@ -63,6 +68,7 @@ class MetagraphThread(PollingExternalState):
 
     def __init__(
         self,
+        uplink: 'MetagraphUplink',
         chain_endpoint: str,
         netuid: int = 0,
         interval: float = 0.1,
@@ -82,6 +88,8 @@ class MetagraphThread(PollingExternalState):
         self.replay_batch_size = replay_batch_size
         self.replay_max_blocks = replay_max_blocks
         self.observers = []
+        self.observer_factories = []
+        self.uplink = uplink
 
     def get_subtensor(self) -> AsyncSubtensor:
         return AsyncSubtensor(chain_endpoint=self.chain_endpoint)
@@ -102,8 +110,12 @@ class MetagraphThread(PollingExternalState):
             })
         return neuron
 
-    def observe(self, observer: MetagraphObserver):
-        self.observers.append(observer)
+    def observe(
+        self,
+        observer: 'ObserverTypeOrFactory'
+    ):
+        if isinstance(observer, MetagraphObserver): self.observers.append(observer)
+        else: self.observer_factories.append(observer)
 
     def setready(self):
         if len(self.neurons.items) > 0:
@@ -257,6 +269,7 @@ class MetagraphThread(PollingExternalState):
         self,
         current: int,
         block: int,
+        active: list[Neuron],
         changed: set[tuple[Neuron, Neuron, tuple[str, ...]]],
         joined: set[Neuron],
         dropped: set[Neuron],
@@ -264,14 +277,13 @@ class MetagraphThread(PollingExternalState):
         replay: bool = False
     ) -> None:
         results: list[None | Awaitable[None]] = [
-            o.on_neurons_updated(current, block, changed, joined, dropped, replay=replay)
+            o.on_neurons_updated(current, block, active, changed, joined, dropped, replay=replay)
             for o in self.observers
         ]
         futures = list(filter(lambda x: inspect.isawaitable(x), results))
         if futures:
             await asyncio.gather(*[
                 asyncio.ensure_future(future) for future in futures
-                if isinstance(future, asyncio.Future)
             ])
         futures = [
             *[
@@ -300,14 +312,13 @@ class MetagraphThread(PollingExternalState):
         replay: bool = False
     ) -> None:
         results: list[None | Awaitable[None]] = [
-            o.on_neuron_changed(self, self.netuid, current, block, old, new, diff, replay=replay)
+            o.on_neuron_changed(self.netuid, current, block, old, new, diff, replay=replay)
             for o in self.observers
         ]
         futures = list(filter(lambda x: inspect.isawaitable(x), results))
         if futures:
             await asyncio.gather(*[
                 asyncio.ensure_future(future) for future in futures
-                if isinstance(future, asyncio.Future)
             ])
 
     async def on_neuron_dropped(
@@ -318,14 +329,13 @@ class MetagraphThread(PollingExternalState):
         replay: bool = False
     ) -> None:
         results: list[None | Awaitable[None]] = [
-            o.on_neuron_dropped(self, self.netuid, current, block, neuron, replay=replay)
+            o.on_neuron_dropped(self.netuid, current, block, neuron, replay=replay)
             for o in self.observers
         ]
         futures = list(filter(lambda x: inspect.isawaitable(x), results))
         if futures:
             await asyncio.gather(*[
                 asyncio.ensure_future(future) for future in futures
-                if isinstance(future, asyncio.Future)
             ])
 
     async def on_neuron_joined(
@@ -337,14 +347,13 @@ class MetagraphThread(PollingExternalState):
         replay: bool = False
     ) -> None:
         results: list[None | Awaitable[None]] = [
-            o.on_neuron_joined(self, self.netuid, current, block, neuron, immunity_length, replay=replay)
+            o.on_neuron_joined(self.netuid, current, block, neuron, immunity_length, replay=replay)
             for o in self.observers
         ]
         futures = list(filter(lambda x: inspect.isawaitable(x), results))
         if futures:
             await asyncio.gather(*[
                 asyncio.ensure_future(future) for future in futures
-                if isinstance(future, asyncio.Future)
             ])
 
     async def update(
@@ -385,6 +394,7 @@ class MetagraphThread(PollingExternalState):
             await self.on_neurons_updated(
                 current=current,
                 block=block,
+                active=self.neurons.items,
                 changed=changed,
                 joined=joined,
                 dropped=dropped,
@@ -394,7 +404,26 @@ class MetagraphThread(PollingExternalState):
         self.immunity_length = immunity_length
 
     async def setup(self, reloading: bool = False) -> None:
-        pass
+        if reloading:
+            return
+        for factory in self.observer_factories:
+            observer = factory(self.uplink, self)
+            if inspect.isawaitable(observer):
+                observer = await observer
+            if not isinstance(observer, MetagraphObserver):
+                raise TypeError(
+                    "Factory function did not produce a MetagraphObserver "
+                    "instance."
+                )
+            self.observers.append(observer)
+
+        if self.observers:
+            await asyncio.gather(*[x.setup() for x in self.observers])
+
+        if self.observers:
+            await asyncio.gather(*[x.on_configured(self) for x in self.observers])
 
     async def teardown(self, exception: BaseException | None = None) -> bool:
+        if self.observers:
+            await asyncio.gather(*[x.teardown() for x in self.observers])
         return False

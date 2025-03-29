@@ -15,11 +15,18 @@
     "extras_require": {
       "develop": [
         "bittensor>=9.0.0",
+        "coverage",
         "pytest",
         "pytest_asyncio",
-        "coverage",
+        "sqlalchemy>=2.0.0",
         "twine",
         "watchdog"
+      ],
+      "sqlalchemy": [
+        "sqlalchemy>=2.0.0"
+      ],
+      "sqlalchemy.sqlite": [
+        "aiosqlite>=0.21.0"
       ]
     },
     "classifiers": [

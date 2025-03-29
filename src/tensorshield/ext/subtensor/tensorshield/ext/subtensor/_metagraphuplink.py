@@ -1,9 +1,18 @@
+from typing import Awaitable
+from typing import Callable
 from typing import Iterable
 
 from libcanonical.runtime import MainProcess
 from libcanonical.utils.logging import LoggingConfigDict
 
+from ._metagraphobserver import MetagraphObserver
 from ._metagraphthread import MetagraphThread
+
+
+ObserverTypeOrFactory = Callable[
+    ['MetagraphUplink', 'MetagraphThread'],
+    MetagraphObserver | Awaitable[MetagraphObserver]
+] | type[MetagraphObserver]
 
 
 class MetagraphUplink(MainProcess):
@@ -19,7 +28,8 @@ class MetagraphUplink(MainProcess):
         subnets: Iterable[int],
         replay_max_blocks: int = 14400,
         replay_batch_size: int = 64,
-        block: int = 0
+        block: int = 0,
+        observers: list[ObserverTypeOrFactory] | None = None
     ):
         super().__init__(name=name)
         self.archive_endpoint = archive_endpoint
@@ -27,6 +37,7 @@ class MetagraphUplink(MainProcess):
         self.lite_endpoint = lite_endpoint
         self.replay_batch_size = replay_batch_size
         self.replay_max_blocks = replay_max_blocks
+        self.observers = observers or []
         self.subnets = subnets
         self.workers = []
 
@@ -37,6 +48,7 @@ class MetagraphUplink(MainProcess):
 
     async def start_subnet(self, netuid: int):
         m = MetagraphThread(
+            uplink=self,
             netuid=netuid,
             block=self.block,
             chain_endpoint=self.lite_endpoint,
@@ -44,6 +56,8 @@ class MetagraphUplink(MainProcess):
             replay_batch_size=self.replay_batch_size,
             replay_max_blocks=self.replay_max_blocks
         )
+        for observer in self.observers:
+            m.observe(observer)
         m.start()
         return m
 

@@ -23,6 +23,7 @@ class Neuron(pydantic.BaseModel, StateLogger):
     port: int = 0
     rank: float = 0.0
     stake: float = 0.0
+    total_stake: float = 0.0
     trust: float = 0.0
     uid: int = -1
     updated: int = 0
@@ -31,7 +32,7 @@ class Neuron(pydantic.BaseModel, StateLogger):
         default=False
     )
 
-    vtrust: float = pydantic.Field(
+    vrust: float = pydantic.Field(
         default=0.0
     )
 
