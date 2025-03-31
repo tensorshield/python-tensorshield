@@ -28,6 +28,14 @@ class Task(Generic[T]):
     task_id: str
     subscribers: list[tuple[SynapseEnvelope[T], asyncio.Future[Any]]]
 
+    @property
+    def envelopes(self):
+        return [x[0] for x in self.subscribers]
+
+    @property
+    def synapses(self):
+        return [x[0].synapse for x in self.subscribers]
+
     def __init__(
         self,
         runner: 'TaskRunner',
