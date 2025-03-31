@@ -3,6 +3,7 @@ from typing import Union
 
 from scalecodec import ScaleType
 
+from libtensorshield.utils import decode_account_id
 from ._fixedpoint import FixedPoint
 
 
@@ -47,6 +48,23 @@ class Balance:
     @property
     def tao(self) -> float:
         return self.rao / pow(10, 9)
+
+    @staticmethod
+    def process_stake_data(stake_data: list[tuple[bytes, int]]) -> dict[str, 'Balance']:
+        """
+        Processes stake data to decode account IDs and convert stakes from rao to Balance objects.
+
+        Args:
+            stake_data (list): A list of tuples where each tuple contains an account ID in bytes and a stake in rao.
+
+        Returns:
+            dict: A dictionary with account IDs as keys and their corresponding Balance objects as values.
+        """
+        decoded_stake_data: dict[str, Balance] = {}
+        for account_id_bytes, stake_ in stake_data:
+            account_id = decode_account_id(account_id_bytes)
+            decoded_stake_data.update({account_id: Balance.from_rao(stake_)})
+        return decoded_stake_data
 
     def __int__(self):
         """Convert the Balance object to an int. The resulting value is in rao."""

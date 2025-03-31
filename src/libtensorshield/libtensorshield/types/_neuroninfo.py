@@ -1,14 +1,12 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Optional
 
-from libtensorshield.types import Balance
+from libtensorshield.utils import decode_account_id
 from libtensorshield.utils import u16_normalized_float
-
-from tensorshield.ext.subtensor.utils import decode_account_id
-from tensorshield.ext.subtensor.utils import process_stake_data
 
 # for annotation purposes
 from ._axoninfo import AxonInfo
+from ._balance import Balance
 from ._infobase import InfoBase
 if TYPE_CHECKING:
     from ._neuroninfolite import NeuronInfoLite
@@ -126,7 +124,7 @@ class NeuronInfo(InfoBase):
     @classmethod
     def _from_dict(cls, decoded: Any) -> "NeuronInfo":
         """Returns a NeuronInfo object from decoded chain data."""
-        stake_dict = process_stake_data(decoded["stake"])
+        stake_dict = Balance.process_stake_data(decoded["stake"])
         total_stake = sum(stake_dict.values()) if stake_dict else Balance(0)
         if not isinstance(total_stake, Balance):
             total_stake = Balance(total_stake)

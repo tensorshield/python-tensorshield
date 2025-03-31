@@ -11,6 +11,6 @@ __all__: list[str] = [
     'Neuron',
     'NeuronInfo',
     'NeuronInfoLite',
-    'NeuronList'
+    'NeuronList',
     'SS58Address'
 ]

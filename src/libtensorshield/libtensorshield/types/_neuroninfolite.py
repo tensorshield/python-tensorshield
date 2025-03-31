@@ -3,10 +3,9 @@ from typing import Any
 from typing import Optional
 
 from libtensorshield.utils import u16_normalized_float
-from libtensorshield.types import Balance
-from tensorshield.ext.subtensor.utils import decode_account_id
-from tensorshield.ext.subtensor.utils import process_stake_data
+from libtensorshield.utils import decode_account_id
 from ._axoninfo import AxonInfo
+from ._balance import Balance
 from ._infobase import InfoBase
 
 
@@ -97,7 +96,7 @@ class NeuronInfoLite(InfoBase):
         """Returns a NeuronInfoLite object from decoded chain data."""
         coldkey = decode_account_id(decoded["coldkey"])
         hotkey = decode_account_id(decoded["hotkey"])
-        stake_dict = process_stake_data(decoded["stake"])
+        stake_dict = Balance.process_stake_data(decoded["stake"])
         stake = sum(stake_dict.values()) if stake_dict else Balance(0)
         if not isinstance(stake, Balance):
             stake = Balance(stake)
