@@ -2,8 +2,10 @@ import asyncio
 from typing import Generic
 from typing import TypeVar
 
+from tensorshield.ext.protocol import Synapse
+from tensorshield.ext.protocol import SynapseEnvelope
 
-E = TypeVar('E')
+E = TypeVar('E', bound=Synapse)
 R = TypeVar('R')
 
 
@@ -17,7 +19,7 @@ class BaseSoma(Generic[E, R]):
 
     def submit(
         self,
-        envelope: E,
+        envelope: SynapseEnvelope[E],
         *,
         loop: asyncio.AbstractEventLoop
     ) -> asyncio.Future[R]:
