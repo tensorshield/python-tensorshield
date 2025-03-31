@@ -3,24 +3,28 @@ import json
 import os
 import pathlib
 from setuptools import find_namespace_packages
-from setuptools import setup
+from setuptools import setup # type: ignore
 
 
 SETUPDIR = pathlib.Path(__file__).parent
 
+NAMESPACE = 'tensorshield.ext'
+
+PKGDIR = SETUPDIR.joinpath(str.replace(NAMESPACE, '.', '/'))
+
 packages = find_namespace_packages(
-    where=SETUPDIR,
+    where=PKGDIR,
     exclude={'build', 'dist', 'tests', 'var'}
 )
-opts = json.loads((open(SETUPDIR.joinpath(packages[0], 'package.json')).read()))
-version = str.strip(open(SETUPDIR.joinpath('VERSION')).read())
-if os.path.exists(SETUPDIR.joinpath('README.md')):
-    with open(SETUPDIR.joinpath('README.md'), encoding='utf-8') as f:
+opts = json.loads((open(f'{PKGDIR}/{packages[0]}/package.json').read()))
+version = str.strip(open('VERSION').read())
+if os.path.exists(os.path.join(SETUPDIR, 'README.md')):
+    with open(os.path.join(SETUPDIR, 'README.md'), encoding='utf-8') as f:
         opts['long_description'] = f.read()
         opts['long_description_content_type'] = "text/markdown"
 
 setup(
     version=version,
-    packages=packages,
+    packages=[f'{NAMESPACE}.{x}' for x in packages],
     include_package_data=True,
     **opts)
