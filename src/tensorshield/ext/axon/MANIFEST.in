@@ -1,0 +1,3 @@
+include README.md
+include VERSION
+include tensorshield/ext/axon/package.json
