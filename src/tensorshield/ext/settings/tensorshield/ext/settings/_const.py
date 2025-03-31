@@ -47,8 +47,8 @@ CHAIN_ENDPOINT_NETWORKS = {
 }
 
 
-def get_chain_endpoint(network: str) -> str | None:
-    return NETWORK_CHAIN_ENDPOINTS.get(network)
+def get_chain_endpoint(network: str) -> str:
+    return NETWORK_CHAIN_ENDPOINTS[network]
 
 
 def get_network(chain_endpoint: str) -> str | None:
