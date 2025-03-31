@@ -13,7 +13,7 @@
       "tensorshield.ext.bases>=0.0.2",
       "tensorshield.ext.protocol>=0.0.2",
       "tensorshield.ext.settings>=0.0.3",
-      "tensorshield.ext.subtensor>=0.0.4",
+      "tensorshield.ext.subtensor>=0.0.5",
       "tensorshield.ext.wallet>=0.0.2",
       "uvicorn"
     ],
