@@ -2,6 +2,8 @@ import os
 
 
 __all__: list[str] = [
+    'get_chain_endpoint',
+    'get_network',
     'DEFAULT_NETWORK'
 ]
 
@@ -43,3 +45,11 @@ CHAIN_ENDPOINT_NETWORKS = {
     RAO_ENTRYPOINT: NETWORKS[5],
     LATENT_LITE_ENTRYPOINT: NETWORKS[6],
 }
+
+
+def get_chain_endpoint(network: str) -> str | None:
+    return NETWORK_CHAIN_ENDPOINTS.get(network)
+
+
+def get_network(chain_endpoint: str) -> str | None:
+    return CHAIN_ENDPOINT_NETWORKS.get(chain_endpoint)
