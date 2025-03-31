@@ -14,7 +14,7 @@
       "tensorshield.ext.protocol>=0.0.2",
       "tensorshield.ext.settings>=0.0.3",
       "tensorshield.ext.subtensor>=0.0.2",
-      "tensorshield.ext.wallet>0.0.2",
+      "tensorshield.ext.wallet>=0.0.2",
       "uvicorn"
     ],
     "extras_require": {
