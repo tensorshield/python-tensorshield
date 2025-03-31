@@ -8,8 +8,7 @@ from types import TracebackType
 
 import asyncstdlib
 from async_substrate_interface import AsyncSubstrateInterface
-
-from .models import NeuronInfo
+from libtensorshield.types import NeuronInfo
 
 os.environ.setdefault('BT_SS58_FORMAT', '42')
 if not os.environ['BT_SS58_FORMAT'].isdigit():

@@ -3,8 +3,6 @@ from ._basestorage import BaseMetagraphStorage
 from ._metagraphobserver import MetagraphObserver
 from ._metagraphthread import MetagraphThread
 from ._metagraphuplink import MetagraphUplink
-from .models import Neuron
-from .models import NeuronList
 
 
 __all__: list[str] = [
@@ -13,6 +11,4 @@ __all__: list[str] = [
     'MetagraphObserver',
     'MetagraphThread',
     'MetagraphUplink',
-    'Neuron',
-    'NeuronList'
 ]

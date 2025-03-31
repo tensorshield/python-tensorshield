@@ -1,7 +1,7 @@
 import functools
 from typing import TypeVar
 
-from .models import Neuron
+from libtensorshield.types import Neuron
 
 
 T = TypeVar('T')

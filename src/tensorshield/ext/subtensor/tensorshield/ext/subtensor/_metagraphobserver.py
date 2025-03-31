@@ -3,7 +3,7 @@ import logging
 from typing import Awaitable
 from typing import TYPE_CHECKING
 
-from .models import Neuron
+from libtensorshield.types import Neuron
 if TYPE_CHECKING:
     from ._metagraphthread import MetagraphThread
     from ._metagraphuplink import MetagraphUplink

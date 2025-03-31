@@ -15,9 +15,9 @@ from libcanonical.utils import chunks
 from libcanonical.utils import retry
 from websockets.exceptions import InvalidStatus
 
-from .models import Neuron
-from .models import NeuronInfo
-from .models import NeuronList
+from libtensorshield.types import Neuron
+from libtensorshield.types import NeuronInfo
+from libtensorshield.types import NeuronList
 from ._asyncsubtensor import AsyncSubtensor
 from ._metagraphobserver import MetagraphObserver
 if TYPE_CHECKING:

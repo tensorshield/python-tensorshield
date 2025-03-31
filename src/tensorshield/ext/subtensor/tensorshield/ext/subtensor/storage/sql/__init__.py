@@ -2,6 +2,7 @@ import contextlib
 import functools
 from typing import TypeVar
 
+from libtensorshield.types import Neuron
 from sqlalchemy import func
 from sqlalchemy import select
 from sqlalchemy.exc import OperationalError
@@ -12,7 +13,6 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from tensorshield.ext.subtensor import BaseMetagraphStorage
-from tensorshield.ext.subtensor import Neuron
 from ._base import Base
 from ._metagraphblock import MetagraphBlock
 from ._neuronregistration import NeuronRegistration
