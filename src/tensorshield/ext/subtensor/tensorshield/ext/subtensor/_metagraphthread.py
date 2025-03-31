@@ -194,6 +194,12 @@ class MetagraphThread(PollingExternalState):
                 await asyncio.sleep(6)
                 return
 
+            # If we are starting, and there is no archive endpoint, assume that the
+            # caller is not interested in the historical metagraph states.
+            if self.step == 1 and not self.archive_endpoint:
+                self.block = current - 1
+                block = current
+
             try:
                 await self.update(
                     current=self.block,
