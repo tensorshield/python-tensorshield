@@ -59,6 +59,10 @@ class Soma(MainProcess, BaseSoma[S, fastapi.Response]):
     tasks: TaskRunner
     task_identifier_exclude: set[str] = {'axon', 'dendrite'}
 
+    @staticmethod
+    def get_chain_endpoint(network: str):
+        return get_chain_endpoint(network)
+
     @classmethod
     def fromenv(cls, name: str, **kwargs: Any):
         env = cls.config_class.model_validate_env({
@@ -113,7 +117,7 @@ class Soma(MainProcess, BaseSoma[S, fastapi.Response]):
         self.metagraph = MetagraphThread(
             uplink=self, # type: ignore
             netuid=netuid,
-            chain_endpoint=chain_endpoint or get_chain_endpoint(network)
+            chain_endpoint=chain_endpoint or self.get_chain_endpoint(network)
         )
         self.monitoring_bind = monitoring_bind
         self.monitoring_port = monitoring_port
