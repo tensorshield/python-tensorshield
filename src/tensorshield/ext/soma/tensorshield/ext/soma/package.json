@@ -1,0 +1,43 @@
+{
+    "name": "tensorshield.ext.soma",
+    "description": "Base class for Bittensor neuron implementations.",
+    "author": "Immortal Izzy",
+    "author_email": "immortal.izzy@tensorshield.ai",
+    "url": "https://github.com/tensorshield/python-tensorshield",
+    "licenses": {"text": "MIT"},
+    "install_requires": [
+      "pydantic>2",
+      "fastapi",
+      "libtensorshield>=0.0.3",
+      "tensorshield.ext.axon>=0.0.2",
+      "tensorshield.ext.bases>=0.0.2",
+      "tensorshield.ext.protocol>=0.0.2",
+      "tensorshield.ext.settings>=0.0.3",
+      "tensorshield.ext.subtensor>=0.0.2",
+      "tensorshield.ext.wallet>0.0.2",
+      "uvicorn"
+    ],
+    "extras_require": {
+      "develop": [
+        "bittensor>=9.0.0",
+        "pytest",
+        "pytest_asyncio",
+        "coverage",
+        "twine",
+        "watchdog"
+      ]
+    },
+    "classifiers": [
+       "Development Status :: 4 - Beta",
+       "Intended Audience :: Developers",
+       "License :: OSI Approved :: MIT License",
+       "Operating System :: POSIX",
+       "Operating System :: POSIX :: Linux",
+       "Programming Language :: Python :: 3.10",
+       "Programming Language :: Python :: 3.11",
+       "Programming Language :: Python :: 3.12",
+       "Programming Language :: Python :: 3 :: Only",
+       "Topic :: Software Development :: Libraries"
+    ]
+  }
+  
