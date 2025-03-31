@@ -6,7 +6,6 @@
     "url": "https://github.com/tensorshield/python-tensorshield",
     "licenses": {"text": "MIT"},
     "install_requires": [
-      "cryptography>=44.0.1",
       "starlette>=0.40.0",
       "tensorshield.ext.soma"
     ],
