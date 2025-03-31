@@ -35,11 +35,14 @@ class Monitor(threading.Thread):
         self.port = port
 
     async def live(self):
-        return fastapi.Response(status_code=200)
+        status_code = 503
+        if self.soma.is_live():
+            status_code = 200
+        return fastapi.Response(status_code=status_code)
 
     async def ready(self):
         status_code = 503
-        if self.soma.step > 1 and not self.soma.must_exit:
+        if self.soma.is_ready():
             status_code = 200
         return fastapi.Response(status_code=status_code)
 

@@ -8,12 +8,12 @@
     "install_requires": [
       "pydantic>2",
       "fastapi",
-      "libtensorshield>=0.0.3",
+      "libtensorshield>=0.0.4",
       "tensorshield.ext.axon>=0.0.2",
       "tensorshield.ext.bases>=0.0.2",
       "tensorshield.ext.protocol>=0.0.2",
       "tensorshield.ext.settings>=0.0.3",
-      "tensorshield.ext.subtensor>=0.0.2",
+      "tensorshield.ext.subtensor>=0.0.4",
       "tensorshield.ext.wallet>=0.0.2",
       "uvicorn"
     ],

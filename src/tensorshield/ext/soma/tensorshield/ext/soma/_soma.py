@@ -17,6 +17,7 @@ from libcanonical.runtime import MainProcess
 from libcanonical.types import ApplicationRuntimeState
 from libcanonical.types import FatalException
 from libcanonical.utils import deephash
+from libcanonical.utils.logging import LoggingConfigDict
 
 from tensorshield.ext.axon import Axon
 from tensorshield.ext.axon import SynapseResponse
@@ -142,6 +143,11 @@ class Soma(MainProcess, BaseSoma[S, fastapi.Response]):
             encode='hex',
             using='sha256'
         )
+
+    def get_logging_config(self) -> LoggingConfigDict:
+        config = super().get_logging_config()
+        config['loggers']['tensorshield'] = config['loggers']['canonical']
+        return config
 
     def log_status(self):
         if not self.metagraph.wait(timeout=0.1):
