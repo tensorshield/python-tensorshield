@@ -7,7 +7,7 @@
     "licenses": {"text": "MIT"},
     "install_requires": [
       "starlette>=0.40.0",
-      "tensorshield.ext.soma"
+      "tensorshield.ext.soma>=0.0.2"
     ],
     "extras_require": {
       "develop": [
