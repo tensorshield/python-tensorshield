@@ -181,7 +181,7 @@ class MetagraphThread(PollingExternalState):
                 current=self.block
             )
             if block == self.block:
-                self.logger.info(
+                self.logger.debug(
                     "Metagraph state is up-to-date (netuid: %s, block: %s)",
                     self.netuid,
                     block,
@@ -385,18 +385,19 @@ class MetagraphThread(PollingExternalState):
                 block=block,
                 neurons=neurons
             )
-            self.log(
-                'INFO', (
-                    "Metagraph update block %s (netuid: %s, joined: %s, "
-                    "changed: %s, dropped: %s, behind: %s)"
-                ),
-                self.block,
-                self.netuid,
-                len(joined),
-                len(changed),
-                len(dropped),
-                current - block
-            )
+            if any([changed, joined, dropped]):
+                self.log(
+                    'INFO', (
+                        "Metagraph update block %s (netuid: %s, joined: %s, "
+                        "changed: %s, dropped: %s, behind: %s)"
+                    ),
+                    self.block,
+                    self.netuid,
+                    len(joined),
+                    len(changed),
+                    len(dropped),
+                    current - block
+                )
             await self.on_neurons_updated(
                 current=current,
                 block=block,
