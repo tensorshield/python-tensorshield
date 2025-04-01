@@ -13,6 +13,10 @@ class HotkeySet(pydantic.BaseModel):
         default_factory=dict
     )
 
+    def add(self, name: str, hotkey: str):
+        key = Hotkey.model_validate({'name': name, 'hotkey': hotkey})
+        self.items[key.qualname] = key
+
     def load(
         self,
         path: pathlib.Path,
