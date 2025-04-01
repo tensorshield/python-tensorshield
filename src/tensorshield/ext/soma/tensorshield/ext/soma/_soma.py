@@ -128,7 +128,7 @@ class Soma(MainProcess, BaseSoma[S, fastapi.Response]):
         self.synapse_handlers = {}
         self.wallet_path = wallet_path.expanduser()
 
-    def generate_task_id(self, synapse: S) -> str:
+    def generate_task_id(self, synapse: S) -> tuple[str, dict[str, Any]]:
         """Generates a task identifier for an incoming synapse. Task identifiers
         are used to identify similar tasks so that the scheduler can optimize
         execution.
@@ -142,7 +142,7 @@ class Soma(MainProcess, BaseSoma[S, fastapi.Response]):
              ),
             encode='hex',
             using='sha256'
-        )
+        ), {}
 
     def get_logging_config(self) -> LoggingConfigDict:
         config = super().get_logging_config()

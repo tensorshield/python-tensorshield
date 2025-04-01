@@ -33,6 +33,10 @@ class Task(Generic[T]):
         return [x[0] for x in self.subscribers]
 
     @property
+    def params(self) -> dict[str, Any]:
+        return dict(self._params)
+
+    @property
     def synapses(self):
         return [x[0].synapse for x in self.subscribers]
 
@@ -40,7 +44,8 @@ class Task(Generic[T]):
         self,
         runner: 'TaskRunner',
         handler: 'SynapseHandlerType',
-        task_id: str
+        task_id: str,
+        params: dict[str, Any] | None = None
     ):
         self.task_id = task_id
         self.created = time.time()
@@ -50,6 +55,7 @@ class Task(Generic[T]):
         self.runner = runner
         self.processed = 0
         self._lock = asyncio.Lock()
+        self._params = params or {}
 
     def is_initial(self) -> bool:
         return self.processed == 0

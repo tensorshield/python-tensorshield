@@ -81,7 +81,7 @@ class TaskRunner:
         envelope: SynapseEnvelope[S],
         future: asyncio.Future[SynapseResponse]
     ) -> None:
-        k = self.soma.generate_task_id(envelope.synapse)
+        k, params = self.soma.generate_task_id(envelope.synapse)
         with self.lock:
             task: Task[Any] | None = self.tasks.get(k)
             if task is None:
@@ -93,7 +93,8 @@ class TaskRunner:
                 task = Task(
                     task_id=k,
                     runner=self,
-                    handler=self.get_handler(envelope.synapse)
+                    handler=self.get_handler(envelope.synapse),
+                    params=params
                 )
                 self.tasks[k] = task
             else:
