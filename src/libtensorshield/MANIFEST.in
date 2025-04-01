@@ -1,3 +1,4 @@
 include README.md
 include VERSION
 include libtensorshield/package.json
+recursive-include libtensorshield/testing/resources *
