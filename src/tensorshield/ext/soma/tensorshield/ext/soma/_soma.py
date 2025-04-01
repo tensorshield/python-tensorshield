@@ -68,7 +68,7 @@ class Soma(MainProcess, BaseSoma[S, fastapi.Response]):
     def fromenv(cls, name: str, **kwargs: Any):
         env = cls.config_class.model_validate_env({
             **os.environ,
-            **{k: v for k, v in kwargs.items() if v is not None}
+            **{k: v for k, v in kwargs.items() if v is not None and k.isupper()}
         })
         if env.netuid is None:
             raise FatalException(
@@ -84,7 +84,8 @@ class Soma(MainProcess, BaseSoma[S, fastapi.Response]):
             axon_port=env.axon_port,
             chain_endpoint=env.chain_endpoint,
             disable_axon=env.axon_disabled,
-            hotkeys=list(env.enabled_hotkeys)
+            hotkeys=list(env.enabled_hotkeys),
+            **{k: v for k, v in kwargs.items() if not k.isupper()}
         )
 
     @classmethod
