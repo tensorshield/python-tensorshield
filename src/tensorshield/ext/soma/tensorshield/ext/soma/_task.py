@@ -110,17 +110,31 @@ class Task(Generic[T]):
                 self.running = False
 
     async def _run(self):
+        failed = False
         if inspect.isasyncgenfunction(self.handler):
             self.handler = await self.runner.run_handler(task=self, handler=self.handler)
             assert inspect.isasyncgen(self.handler)
-            await self.handler.asend(None)
+            try:
+                await self.handler.asend(None)
+            except Exception as e:
+                self.logger.exception(
+                    "Caught fatal %s while starting request handler: %s",
+                    type(e).__name__,
+                    repr(e)
+                )
+                failed = True
         while True:
             try:
                 envelope, future = self.subscribers.pop()
             except IndexError:
                 break
             try:
-                if inspect.isasyncgen(self.handler):
+                if failed:
+                    result = SynapseResponse(
+                        synapse=envelope.synapse,
+                        status_code=500
+                    )
+                elif inspect.isasyncgen(self.handler):
                     result = await self.handler.asend(envelope.synapse)
                 else:
                     result = await self.runner.run_handler(
