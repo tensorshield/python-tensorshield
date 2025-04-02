@@ -14,7 +14,9 @@ class HotkeyPrivateKey(HotkeyPublicKey):
 
     @property
     def private(self):
-        return Keypair.create_from_seed(self.private_key, ss58_format=42)
+        if len(self.private_key) != 64:
+            raise ValueError(f"Invalid private key length: {len(self.private_key)}")
+        return Keypair(private_key=self.private_key, ss58_format=42)
 
     @property
     def private_hex(self):

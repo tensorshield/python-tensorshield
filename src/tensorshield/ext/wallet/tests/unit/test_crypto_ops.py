@@ -16,9 +16,9 @@ def test_load_private(wallet_path: pathlib.Path, hotkey: Hotkey):
     assert isinstance(hotkey.root, HotkeyRef)
     hotkey.load(wallet_path, mode='private')
     assert isinstance(hotkey.root, HotkeyPrivateKey)
+    assert hotkey.root.private
 
 
 def test_parse_ss58_public_key(wallet_path: pathlib.Path, hotkey: Hotkey):
     hotkey.load(wallet_path, mode='public')
     assert hotkey.public_bytes == hotkey.ss58_address.public_bytes
-

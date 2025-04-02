@@ -52,12 +52,11 @@ class Hotkey(pydantic.RootModel[HotkeyPrivateKey | HotkeyPublicKey | HotkeyRef])
 
     @classmethod
     def generate(cls, name: str, hotkey: str):
-        k = os.urandom(32)
-        private = Keypair.create_from_seed(k)
+        private = Keypair.create_from_mnemonic(Keypair.generate_mnemonic(), ss58_format=42)
         return cls.model_validate({
             'name': name,
             'hotkey': hotkey,
-            'private_key': k,
+            'private_key': private.private_key,
             'public_key': private.public_key,
             'ss58_address': SS58Address(private.ss58_address)
         })
