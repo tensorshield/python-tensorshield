@@ -154,6 +154,7 @@ class Task(Generic[T]):
                 result = SynapseResponse(synapse=result)
             self.runner.loop.call_soon_threadsafe(future.set_result, result)
         assert not self.subscribers
+        self.runner.remove(self)
 
     def __await__(self):
         return self.run().__await__()

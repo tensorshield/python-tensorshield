@@ -76,6 +76,19 @@ class TaskRunner:
     def get_handler(self, synapse: Synapse) -> 'SynapseHandlerType':
         return self.handlers[type(synapse).__name__]
 
+    def remove(self, task: Task[Any]):
+        with self.lock:
+            if self.tasks.pop(task.task_id, None) is None:
+                self.logger.warning(
+                    "Attempted to remove a task that was already finished (task-id: %s)",
+                    task.task_id
+                )
+            else:
+                self.logger.info(
+                    "Removed task (task-id: %s)",
+                    task.task_id
+                )
+
     def schedule(
         self,
         envelope: SynapseEnvelope[S],
