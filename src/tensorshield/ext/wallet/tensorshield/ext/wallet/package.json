@@ -7,6 +7,7 @@
     "licenses": {"text": "MIT"},
     "install_requires": [
       "libtensorshield>=0.0.5",
+      "libcanonical>=0.0.42",
       "pydantic>2",
       "substrate-interface"
     ],

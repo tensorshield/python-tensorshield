@@ -1,6 +1,6 @@
 import pydantic
-from cryptography.hazmat.primitives.asymmetric import ed25519
 from libcanonical.types import HexEncoded
+from substrateinterface import Keypair
 
 from libtensorshield.types import SS58Address
 from ._hotkeyref import HotkeyRef
@@ -19,4 +19,16 @@ class HotkeyPublicKey(HotkeyRef):
 
     @property
     def public(self):
-        return ed25519.Ed25519PublicKey.from_public_bytes(self.public_key)
+        return Keypair(public_key=self.public_key, ss58_format=42)
+
+    def verify(
+        self,
+        message: str | bytes,
+        signature: str | bytes,
+        encoding: str = 'utf-8'
+    ) -> bool:
+        if isinstance(message, str):
+            message = str.encode(message, encoding=encoding)
+        if isinstance(signature, str):
+            signature = str.encode(signature, encoding=encoding)
+        return self.public.verify(bytes(message), bytes(signature))

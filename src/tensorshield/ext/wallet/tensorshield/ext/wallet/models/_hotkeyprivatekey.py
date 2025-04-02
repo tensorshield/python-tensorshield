@@ -1,6 +1,7 @@
 import pydantic
-from cryptography.hazmat.primitives.asymmetric import ed25519
+from libcanonical.types import AwaitableBytes
 from libcanonical.types import HexEncoded
+from substrateinterface import Keypair
 
 from ._hotkeypublickey import HotkeyPublicKey
 
@@ -13,4 +14,13 @@ class HotkeyPrivateKey(HotkeyPublicKey):
 
     @property
     def private(self):
-        return ed25519.Ed25519PrivateKey.from_private_bytes(self.private_key)
+        return Keypair.create_from_seed(self.private_key, ss58_format=42)
+
+    @property
+    def private_hex(self):
+        return f'0x{bytes.hex(self.private_key)}'
+
+    def sign(self, message: bytes | str, encoding: str = 'utf-8'):
+        if isinstance(message, str):
+            message = str.encode(message, encoding)
+        return AwaitableBytes(self.private.sign(message))
