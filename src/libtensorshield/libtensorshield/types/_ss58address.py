@@ -33,6 +33,12 @@ class SS58Address(str):
             serialization=core_schema.plain_serializer_function_ser_schema(cls.serialize)
         )
 
+    @staticmethod
+    def is_valid(value: str):
+        if not isinstance(value, str):
+            return False
+        return is_valid_ss58_address(value, valid_ss58_format=42)
+
     @classmethod
     def frombytes(cls, value: bytes):
         return cls(ss58_encode(value, 42))
@@ -67,7 +73,10 @@ class SS58Address(str):
         data: str | bytes,
         signature: str | bytes
     ):
-        return self.keypair.verify(data, signature)
+        try:
+            return self.keypair.verify(data, signature)
+        except ValueError:
+            return False
 
     def __repr__(self): # pragma: no cover
         return f'<SS58Address: {str(self)}>'
