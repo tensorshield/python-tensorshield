@@ -35,15 +35,15 @@ class SS58Address(str):
 
     @classmethod
     def frombytes(cls, value: bytes):
-        return cls(ss58_encode(value))
+        return cls(ss58_encode(value, 42))
 
     @functools.cached_property
     def public_bytes(self):
-        return bytes.fromhex(ss58_decode(self))
+        return bytes.fromhex(ss58_decode(self, 42))
 
     @functools.cached_property
     def keypair(self):
-        return Keypair(ss58_address=self)
+        return Keypair(ss58_address=self, ss58_format=42)
 
     @classmethod
     def __get_pydantic_json_schema__(
@@ -55,7 +55,7 @@ class SS58Address(str):
 
     @classmethod
     def validate(cls: type[T], instance: T | str) -> T:
-        if not is_valid_ss58_address(instance):
+        if not is_valid_ss58_address(instance, 42):
             raise ValueError("not a valid SS58 address")
         return cls(instance)
 
