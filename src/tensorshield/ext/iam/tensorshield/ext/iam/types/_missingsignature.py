@@ -1,0 +1,4 @@
+
+
+class MissingSignature(ValueError):
+    pass
