@@ -57,7 +57,12 @@ class SS58Address(str):
         _: CoreSchema,
         handler: GetJsonSchemaHandler
     ) -> JsonSchemaValue:
-        return handler(core_schema.str_schema())
+        schema = handler(core_schema.str_schema())
+        schema['title'] = cls.__name__
+        schema['description'] = (
+            "An SS58 address is a standardized, human-readable encoding format used in the Substrate-based blockchain ecosystem (including Polkadot and Kusama) to represent account identifiers with network-specific prefixes for improved usability and security."
+        )
+        return schema
 
     @classmethod
     def validate(cls: type[T], instance: T | str) -> T:
