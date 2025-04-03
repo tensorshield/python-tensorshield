@@ -7,6 +7,7 @@ from tensorshield.ext.subtensor import AsyncSubtensor
 
 class Service(fastapi.FastAPI):
     chain_endpoint: str | None = None
+    title: str
     subtensor: AsyncSubtensor | None = None
 
     def __init__(
@@ -14,7 +15,10 @@ class Service(fastapi.FastAPI):
         chain_endpoint: str | None = None
     ):
         super().__init__(
-            lifespan=self.default_lifespan
+            lifespan=self.default_lifespan,
+            docs_url=None,
+            redoc_url='/docs',
+            title=self.title
         )
         self.chain_endpoint = chain_endpoint
 
