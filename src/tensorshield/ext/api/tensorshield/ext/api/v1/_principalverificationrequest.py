@@ -1,12 +1,14 @@
 from typing import Union
 
 import pydantic
-
 from libcanonical.types import DomainName
 from libcanonical.types import HTTPResourceLocator
 from libcanonical.types import EmailAddress
 from libcanonical.types import Phonenumber
 from libtensorshield.types import SS58Address
+
+from ._requestmodel import V1RequestModel
+from ._principalverificationresponse import PrincipalVerificationResponse
 
 
 PrincipalTypes = Union[
@@ -17,11 +19,15 @@ PrincipalTypes = Union[
 ]
 
 
-class PrincipalVerificationRequest(pydantic.BaseModel):
+class PrincipalVerificationRequest(V1RequestModel[PrincipalVerificationResponse]):
     """A :class:`PrincipalVerificationRequest` is a request by a
     client to verify a certain principal, such as an email address,
     phone number or username.
     """
+    path = 'request'
+    response_model = PrincipalVerificationResponse
+    version = 'v1'
+
     audience: DomainName = pydantic.Field(
         default=...,
         title="Audience",
