@@ -6,7 +6,7 @@
     "url": "https://github.com/tensorshield/python-tensorshield",
     "licenses": {"text": "MIT"},
     "install_requires": [
-      "libcanonical>=0.0.38",
+      "libcanonical>=0.0.43",
       "pydantic>2",
       "substrate-interface",
       "scalecodec>=1.2.11"
