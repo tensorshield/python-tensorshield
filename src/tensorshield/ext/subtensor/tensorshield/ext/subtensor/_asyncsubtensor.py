@@ -329,8 +329,8 @@ class AsyncSubtensor:
 
     async def __aexit__(
         self,
-        cls: type[BaseException],
-        exc: BaseException,
-        tb: TracebackType
+        cls: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None
     ):
         await self.substrate.close()
