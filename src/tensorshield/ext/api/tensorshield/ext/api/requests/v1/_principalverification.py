@@ -32,6 +32,16 @@ class PrincipalVerificationRequest(pydantic.BaseModel):
         )
     )
 
+    token: str | None = pydantic.Field(
+        default=None,
+        title="Security token",
+        description=(
+            "For audiences that do not allow anonymous verification requests, "
+            "a security token that resolves to a `PreparedPrincipalVerification"
+            "Request`."
+        )
+    )
+
     scope: set[HTTPResourceLocator | str] = pydantic.Field(
         default=...,
         title="Scope",
