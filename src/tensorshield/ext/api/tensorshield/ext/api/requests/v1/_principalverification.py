@@ -47,7 +47,7 @@ class PrincipalVerificationRequest(pydantic.BaseModel):
         title="Scope",
         description=(
             "The `scope` parameter is an array of strings that may be used "
-            "to contrain how the assertion is used."
+            "to constrain how the assertion is used."
         )
     )
 
